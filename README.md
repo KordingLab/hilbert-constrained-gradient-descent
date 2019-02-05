@@ -5,25 +5,24 @@ L^2 notion of function space.
 
 See Benjamin, Rolnick, Kording, ICLR 2019, https://openreview.net/forum?id=SkMwpiR9Y7
 
-### Example usage
+## Usage
 
 This optimizer is unusual in that it takes a 1st "test step" that it then corrects (in the direction
-opposite the gradient of the change in function space, so that this change is minimized.) This behavior has the
+opposite the gradient of the change in function space, so that this change is minimized). This behavior has the
 following implications:
-     - When calling .step(), we require that you supply a function that evaluates your network on validation data.
+- When calling .step(), we require that you supply a function that evaluates your network on validation data.
         This will be called after taking the "test step" to see how far in L2 space we've gone. See the example below.
-     - There are hyperparameters that control the corrective step (`n_corrections`, `inner_lr`)
+- There are hyperparameters that control the corrective step (`n_corrections`, `inner_lr`)
 
-
-Notice the differences in the following training loop.
-    - we loop over a validation dataloader `val_loader` as well as the normal training data
-    - We feed a function called `validation_eval` to the `step()` call of the optimizer. This is necessary because
+#### Example training loop
+Notice the differences from a typical loop:
+- We loop over a validation dataloader `val_loader` as well as the normal training data
+- **We feed a function called `validation_eval` to the `step()` call of the optimizer**. This is necessary because
         the HC family of optimizers needs to internally re-calculate how far the network travels in function space
         after each internal loop.
-    - We need to re-define `validation_eval` each loop to evaluate a particular batch of validation data.
+- We need to re-define `validation_eval` each loop to evaluate a particular batch of validation data.
 ```
-# Code snippet... assuming the typical things like `model` is defined above
-
+...
 optimizer = HCAdam(model.parameters(), lr=0.01,
                    fcn_change_limiter=1.0, inner_lr=0.05, n_corrections=5,  # HC params
                    betas=(0.9, 0.999), eps=1e-08, amsgrad=False)  # adam params
@@ -75,7 +74,7 @@ the distance is simply the average difference between the outputs of those netwo
 this the L^2 function distance.
 
 In math, the L^2 function distance between functions f and g is defined as:
-![EQ1](pics/eq1.png =250x)
+<img src="pics/eq1.png" alt="eq1" width="300"/>
 
 The HCGD and HCADAM optimizers both constrain how much this L^2 distance changes every optimization step. The procedure
 is that we first take a "test step" using plain SGD or ADAM, compute how far we just traveled, and then step towards
@@ -85,7 +84,8 @@ If computational resources allow, we can actually go a step further than just ta
 with the natural gradient, we can work to converge towards a balance between the decrease in loss and the distance
 traveled in L^2 space. If we approximate the change in loss linearly as the parameter change times the gradient,
 we have a little mini-optimization problem each step, given by:
-![EQ2](pics/eq2.png =250x)
+<img src="pics/eq2.png" alt="eq1" width="400"/>
+
 If you set `n_corrections` to be larger than 1, the HCGD and HCADAM optimizers will perform an inner loop of gradient
 descent to converge towards the right ∆θ each step. Performance usually improves if you use a few inner
 steps, but be aware that the other hyperparameters may need to change along with the value of `n_corrections`.
