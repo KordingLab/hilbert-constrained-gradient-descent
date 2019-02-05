@@ -22,6 +22,7 @@ Notice the differences from a typical loop:
         after each internal loop.
 - We need to re-define `validation_eval` each loop to evaluate a particular batch of validation data.
 ```
+from hcgd import HCAdam, HCGD
 ...
 optimizer = HCAdam(model.parameters(), lr=0.01,
                    fcn_change_limiter=1.0, inner_lr=0.05, n_corrections=5,  # HC params
