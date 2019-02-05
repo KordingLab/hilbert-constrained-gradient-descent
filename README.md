@@ -75,7 +75,7 @@ the distance is simply the average difference between the outputs of those netwo
 this the L^2 function distance.
 
 In math, the L^2 function distance between functions f and g is defined as:
-<img src="https://latex.codecogs.com/svg.latex?\Large&space;x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" />
+![EQ1](pics/eq1.png =250x)
 
 The HCGD and HCADAM optimizers both constrain how much this L^2 distance changes every optimization step. The procedure
 is that we first take a "test step" using plain SGD or ADAM, compute how far we just traveled, and then step towards
@@ -85,7 +85,7 @@ If computational resources allow, we can actually go a step further than just ta
 with the natural gradient, we can work to converge towards a balance between the decrease in loss and the distance
 traveled in L^2 space. If we approximate the change in loss linearly as the parameter change times the gradient,
 we have a little mini-optimization problem each step, given by:
-<img src="https://latex.codecogs.com/svg.latex?\Large&space;\Delta\theta'  = \argmin_{\Delta\theta} \bigg(J^T \Delta\theta+ \frac{\lambda}{N}  \sum_{i=0}^N | f_{\theta_t}(x_i) -  f_{\theta_{t}+\Delta\theta}(x_i) |^2 \bigg)"/>
+![EQ2](pics/eq2.png =250x)
 If you set `n_corrections` to be larger than 1, the HCGD and HCADAM optimizers will perform an inner loop of gradient
 descent to converge towards the right ∆θ each step. Performance usually improves if you use a few inner
 steps, but be aware that the other hyperparameters may need to change along with the value of `n_corrections`.
@@ -94,7 +94,7 @@ steps, but be aware that the other hyperparameters may need to change along with
 
 In our ICLR paper, we explore how typical networks behave in function space relative to parameter space. Here's a fun
 image as a teaser.
-![Function dists](Lipschitz-01.png)
+![Function dists](pics/Lipschitz-01.png)
 Parameter distances is sometimes, but not always, representative of function distances.
 Here we compare the two at three scales during the optimization of a CNN on CIFAR-10.
 Left: Distances between the individual SGD updates. Middle: Distances between each epoch.
