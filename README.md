@@ -1,7 +1,7 @@
 # Hilbert Constrained Gradient Descent
 Pytorch optimizers implementing Hilbert-Constrained Gradient Descent (HCGD) and Hilbert-Constrained Adam (HCADAM).
 These optimizers modify their parent optimizers by penalizing the movement of the network in function space. We use the
-$L^2$ notion of function space.
+L^2 notion of function space.
 
 See Benjamin, Rolnick, Kording, ICLR 2019, https://openreview.net/forum?id=SkMwpiR9Y7
 
@@ -72,25 +72,25 @@ change gives you the natural gradient. See the final section of our ICLR paper t
 
 In HC methods we use a notion of function distance that's somewhat easier to calculate. Given two functions, or networks,
 the distance is simply the average difference between the outputs of those networks when given the same inputs. We call
-this the $L^2$ function distance.
+this the L^2 function distance.
 
-In math, the $L^2$ function distance between functions $f$ and $g$ is defined as:
-$$\|f-g\|^2 \approx  \frac{1}{N}  \sum_{i=0}^N | f(x_i) -  g(x_i) |^2.$$
+In math, the L^2 function distance between functions f and g is defined as:
+<img src="https://latex.codecogs.com/svg.latex?\Large&space;x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}" />
 
-The HCGD and HCADAM optimizers both constrain how much this $L^2$ distance changes every optimization step. The procedure
+The HCGD and HCADAM optimizers both constrain how much this L^2 distance changes every optimization step. The procedure
 is that we first take a "test step" using plain SGD or ADAM, compute how far we just traveled, and then step towards
 the negative gradient of that distance with respect to the updated parameters, so that the distance decreases.
 
 If computational resources allow, we can actually go a step further than just taking one corrective step. In analogy
 with the natural gradient, we can work to converge towards a balance between the decrease in loss and the distance
-traveled in $L^2$ space. If we approximate the change in loss linearly as the parameter change times the gradient,
+traveled in L^2 space. If we approximate the change in loss linearly as the parameter change times the gradient,
 we have a little mini-optimization problem each step, given by:
-$$\Delta\theta'  = \argmin_{\Delta\theta} \bigg(J^T \Delta\theta+ \frac{\lambda}{N}  \sum_{i=0}^N | f_{\theta_t}(x_i) -  f_{\theta_{t}+\Delta\theta}(x_i) |^2 \bigg)$$
+<img src="https://latex.codecogs.com/svg.latex?\Large&space;\Delta\theta'  = \argmin_{\Delta\theta} \bigg(J^T \Delta\theta+ \frac{\lambda}{N}  \sum_{i=0}^N | f_{\theta_t}(x_i) -  f_{\theta_{t}+\Delta\theta}(x_i) |^2 \bigg)"/>
 If you set `n_corrections` to be larger than 1, the HCGD and HCADAM optimizers will perform an inner loop of gradient
-descent to converge towards the right $\Delta\theta$ each step. Performance usually improves if you use a few inner
+descent to converge towards the right ∆θ each step. Performance usually improves if you use a few inner
 steps, but be aware that the other hyperparameters may need to change along with the value of `n_corrections`.
 
-### Fun with the $L^2$ distance
+### Fun with the L^2 distance
 
 In our ICLR paper, we explore how typical networks behave in function space relative to parameter space. Here's a fun
 image as a teaser.
@@ -101,4 +101,4 @@ Left: Distances between the individual SGD updates. Middle: Distances between ea
 Right: Distances from initialization. On all three plots, note the changing relationship between function and
 parameter distances throughout optimization. The network a CNN with four convolutional layers with batch normalization,
 followed by two fully-connected layers, trained with SGD with learning rate = 0.1, momentum = 0.9, and weight decay = 1e-4.
-Note that the $L^2$ distance is computed from the output after the softmax layer, meaning possible values range from 0 to 1.
+Note that the L^2 distance is computed from the output after the softmax layer, meaning possible values range from 0 to 1.
