@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='Recurrent Unit Baselines')
 parser.add_argument('--batch_size', help='batch size of network', type=int, default=64)
 parser.add_argument('--epochs', help='number of epochs', type=int, default=20)
 parser.add_argument('--hidden_layer_size', help='size of the hidden layer in the LSTM', type=int, default=128)
-parser.add_argument('--no-gpu', help='dont use gpu for training', action='store_false')
+parser.add_argument('--no-gpu', help='dont use gpu for training', action='store_true')
 parser.add_argument('--learning-rate', help='the learning rate', type=float, default=0.01)
 parser.add_argument('--inner-learning-rate', help='the inner learning rate for HC methods', type=float, default=0.01)
 parser.add_argument('--n-corrections', help='number of iterations in the inner loop for HC methods',

@@ -39,4 +39,4 @@ class LSTMBaseline(nn.Module):
         x, self.hidden = self.lstm(x, self.hidden)
         x = x[:, -1, :]
         x = self.linear_layer(x.view(-1, self.hidden_dim))
-        return F.log_softmax(x)
+        return F.log_softmax(x, dim=1)

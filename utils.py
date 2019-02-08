@@ -59,7 +59,7 @@ def train(model, training_data, val_loader, testing_data, criterion, args, optim
         loss = criterion(output, target)
         loss.backward()
 
-        torch.nn.utils.clip_grad_norm(model.parameters(), args.gradient_clipping_value)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), args.gradient_clipping_value)
 
         # this is the key to using HC methods. We need to create a function that evaluates the model on the validation
         # batch, and then give this function to the step() call for the optimizer instance.
@@ -84,7 +84,7 @@ def train(model, training_data, val_loader, testing_data, criterion, args, optim
 
             print('Batch {}: Train accuracy ({:.5f}%)\tLoss: {:.6f} Test accuracy ({:.5f}%)\tLoss: {:.6f}'.format(
                 current_batch,
-                acc, loss.data[0], te, tl))
+                acc, loss.item(), te, tl))
 
             test_accuracy.append(te)
 
@@ -109,10 +109,12 @@ def test(model, testing_data, criterion, args, n_examples):
 
         if args.gpu:
             data, target = data.cuda(), target.cuda()
-        data, target = Variable(data, volatile=True), Variable(target)
 
-        output = model(data)
-        test_loss += criterion(output, target).data[0]  # sum up batch loss
+        with torch.no_grad():
+            data, target = Variable(data), Variable(target)
+
+            output = model(data)
+            test_loss += criterion(output, target).item()  # sum up batch loss
         pred = output.data.max(1, keepdim=True)[1]  # get the index of the max log-probability
         correct += pred.eq(target.data.view_as(pred)).sum()
         i += args.batch_size

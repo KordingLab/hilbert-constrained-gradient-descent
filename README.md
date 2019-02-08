@@ -56,7 +56,7 @@ for current_batch, ((data, target), (val_data, _)) in enumerate(zip(training_dat
 In the file `sequential_mnist_example.py`, we show an example of this in action. This can be run from the command line
 right now with various options:
 ```
-python sequential_mnist_example --learning-rate 0.01 --inner-learning-rate 0.08 --n-corrections 5 --opt hcadam
+python sequential_mnist_example.py --learning-rate 0.01 --inner-learning-rate 0.08 --n-corrections 5 --opt hcadam
 ```
 See the code for further documentation about this specific implementation.
 
