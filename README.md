@@ -3,7 +3,9 @@ Pytorch optimizers implementing Hilbert-Constrained Gradient Descent (HCGD) and 
 These optimizers modify their parent optimizers by penalizing the movement of the network in function space. We use the
 L^2 notion of function space.
 
-See Benjamin, Rolnick, Kording, ICLR 2019, https://openreview.net/forum?id=SkMwpiR9Y7
+See Benjamin, Rolnick, Kording, ICLR 2019, https://openreview.net/pdf?id=SkMwpiR9Y7
+
+An example implementation in a larger NMT package can be found here: https://github.com/aribenjamin/OpenNMT-py
 
 ## Usage
 
