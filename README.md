@@ -1,20 +1,27 @@
 # Hilbert Constrained Gradient Descent
 Pytorch optimizers implementing Hilbert-Constrained Gradient Descent (HCGD) and Hilbert-Constrained Adam (HCADAM).
-These optimizers modify their parent optimizers by penalizing the movement of the network in function space. We use the
-L^2 notion of function space.
+These optimizers modify their parent optimizers to perform gradient descent in function space, rather than parameter space. This is accomplished by penalizing the movement of the network in function space on each step while maintaining the decrease in the loss.
 
 See Benjamin, Rolnick, Kording, ICLR 2019, https://openreview.net/pdf?id=SkMwpiR9Y7
 
 An example implementation in a larger NMT package can be found here: https://github.com/aribenjamin/OpenNMT-py
 
-## Usage
+## When to use
 
-This optimizer is unusual in that it takes a 1st "test step" that it then corrects (in the direction
-opposite the gradient of the change in function space, so that this change is minimized). This behavior has the
-following implications:
+When will this approach work better? A heuristic we find helpful is this optimizer will perform better than SGD if Adam outperforms SGD. Think hard LSTM problems, but not CNNs or ResNets with batchnorm. **Pros:** Better generalization performance, especially for problems where the relation between functions and parameters is highly curved. **Cons:** ~2x training time, per step. Since it converges more quickly, this can cancel out in terms of wall-time.
+
+We supply two different optimizers: HCadam and HCGD. Generally, HCadam works better than HCGD. See the paper for details on the difference between the two.
+
+## Implementation
+
+This optimizer requires the following change to your train loop:
 - When calling .step(), we require that you supply a function that evaluates your network on validation data.
         This will be called after taking the "test step" to see how far in L2 space we've gone. See the example below.
-- There are hyperparameters that control the corrective step (`n_corrections`, `inner_lr`)
+
+This is because the optimizer takes a 1st "test step" that it then corrects (in the direction
+opposite the gradient of the change in function space, so that this change is minimized). 
+
+The default hyperparameter values are a good starting point. Try first searching over `fcn_change_limiter` within a factor of 10 on either side. Then, see if setting `n_corrections` to 2 or incrementally higher helps. This will get expensive, though, so consider whether it's worth your time. (Maybe you'd rather a bigger network, for example).
 
 #### Example training loop
 Notice the differences from a typical loop:
@@ -64,9 +71,10 @@ See the code for further documentation about this specific implementation.
 
 ### What is 'Hilbert-Constriction'?
 
-We know that SGD implicitly constricts the movement traveled *in parameter space* every step, and that this is good for
-optimization. We don't care about the parameters *per se*, but rather the input-output function itself. What we would
-like to do is limit the change in function space each step.
+Gradient descent takes the step with the largest decrease in loss for a fixed (small) distance in parameter space. But we don't care about the parameters *per se*, but rather the input-output function itself. What we would
+like to do take the step with the largest decrease in loss for a fixed (small) distance in function space. That is, perform gradient descent in function space.
+
+The way we actually do this is by pitting two factors against each other: on each step, we try to maximally decrease the loss while minimally moving in function space.
 
 There are many ways of defining a function space, and thus many ways of defining function distances. If you choose the
 KL divergence between two output distributions as your measure of distance, it turns out that regularizing this notion of
@@ -77,6 +85,7 @@ the distance is simply the average difference between the outputs of those netwo
 this the L^2 function distance.
 
 In math, the L^2 function distance between functions f and g is defined as:
+
 <img src="pics/eq1.png" alt="eq1" width="300"/>
 
 The HCGD and HCADAM optimizers both constrain how much this L^2 distance changes every optimization step. The procedure
@@ -87,6 +96,7 @@ If computational resources allow, we can actually go a step further than just ta
 with the natural gradient, we can work to converge towards a balance between the decrease in loss and the distance
 traveled in L^2 space. If we approximate the change in loss linearly as the parameter change times the gradient,
 we have a little mini-optimization problem each step, given by:
+
 <img src="pics/eq2.png" alt="eq1" width="400"/>
 
 If you set `n_corrections` to be larger than 1, the HCGD and HCADAM optimizers will perform an inner loop of gradient
